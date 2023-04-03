@@ -11,23 +11,28 @@ namespace SQLandORM
     {
         static void Main(string[] args)
         {
-            #region Configuration
+
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .Build();
 
             string connString = config.GetConnectionString("DefaultConnection");
-            #endregion
+
 
             IDbConnection conn = new MySqlConnection(connString);
             DapperDepartmentRepository repo = new DapperDepartmentRepository(conn);
+            DapperProductRepository productRepository = new DapperProductRepository(conn);
+            productRepository.CreateProduct("newItem", 20, 1);
 
-            Console.WriteLine("Hello! Please press 'Enter' to view the current departments:");
+            Console.WriteLine("Hello! Please press 'Enter' to view the current departments and products:");
             Console.ReadLine();
 
             var depos = repo.GetAllDepartments();
-            Print(depos);
+            Print(depos); 
+            var prods = productRepository.GetAllProducts();
+            Print(prods);
+
 
 
             Console.WriteLine("Would you like to add a department?");
@@ -41,7 +46,8 @@ namespace SQLandORM
                 repo.InsertDepartment(userResponse);
                 Print(repo.GetAllDepartments());
             }
-
+                    
+               
             Console.WriteLine("Goodbye!");
         }
 
@@ -50,6 +56,14 @@ namespace SQLandORM
             foreach (var depo in depos)
             {
                 Console.WriteLine($"Id: {depo.DepartmentID} // Name: {depo.Name}");
+            }
+        }
+
+        private static void Print(IEnumerable<Product> prods)
+        {
+            foreach (var prod in prods)
+            {
+                Console.WriteLine($"CategoryId: {prod.CategoryID} // Name: {prod.Name}");
             }
         }
     }
